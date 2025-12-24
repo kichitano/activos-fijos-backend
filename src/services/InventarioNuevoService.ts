@@ -45,6 +45,9 @@ interface InventarioNuevoFilters {
 export class InventarioNuevoService {
   private inventarioNuevoRepository = AppDataSource.getRepository(InventarioNuevo);
   private inventarioRepository = AppDataSource.getRepository(Inventario);
+  private mobiliarioRepository = AppDataSource.getRepository(Mobiliario);
+  private equiposInformaticosRepository = AppDataSource.getRepository(EquiposInformaticos);
+  private vehiculosRepository = AppDataSource.getRepository(Vehiculos);
 
   /**
    * Validar que inventario origen existe
