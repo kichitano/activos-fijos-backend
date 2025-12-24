@@ -84,15 +84,40 @@ export class InventarioNuevoService {
   }
 
   /**
-   * Obtener por ID con relaciones
+   * Obtener por ID con relaciones y datos específicos del tipo
    */
-  async findById(id: string): Promise<InventarioNuevo | null> {
+  async findById(id: string): Promise<any> {
     const inventarioNuevo = await this.inventarioNuevoRepository.findOne({
       where: { id },
-      relations: ['inventario_origen', 'user'],
+      relations: ['inventario_origen', 'created_by_user'],
     });
 
-    return inventarioNuevo;
+    if (!inventarioNuevo) {
+      return null;
+    }
+
+    // Cargar datos específicos según el tipo de activo
+    let typeSpecificData = null;
+    const tipoActivo = inventarioNuevo.tipo_activo_fijo;
+
+    if (tipoActivo === TipoActivoFijo.MOBILIARIO) {
+      typeSpecificData = await this.mobiliarioRepository.findOne({
+        where: { inventario_nuevo_id: inventarioNuevo.id },
+      });
+    } else if (tipoActivo === TipoActivoFijo.EQUIPOS_INFORMATICOS) {
+      typeSpecificData = await this.equiposInformaticosRepository.findOne({
+        where: { inventario_nuevo_id: inventarioNuevo.id },
+      });
+    } else if (tipoActivo === TipoActivoFijo.VEHICULOS) {
+      typeSpecificData = await this.vehiculosRepository.findOne({
+        where: { inventario_nuevo_id: inventarioNuevo.id },
+      });
+    }
+
+    return {
+      ...inventarioNuevo,
+      typeSpecificData,
+    };
   }
 
   /**
